@@ -1,0 +1,27 @@
+import requests
+import pandas
+from datetime import datetime
+
+url = "https://tank01-mlb-live-in-game-real-time-statistics.p.rapidapi.com/getMLBBettingOdds"
+
+today = datetime.today()
+yyyymmdd = today.strftime("%Y%m%d")
+
+querystring = {"gameDate":str(yyyymmdd),"playerProps":"false"}
+
+headers = {
+	"X-RapidAPI-Key": "d85b8a5944msh925da968eaa6b6fp1d91b9jsn8961b29ff9a9",
+	"X-RapidAPI-Host": "tank01-mlb-live-in-game-real-time-statistics.p.rapidapi.com"
+}
+
+response = requests.get(url, headers=headers, params=querystring)
+# Insert a check here to see if this days data already exists to not waste a pull
+# Clean up data into useable format
+
+
+print(response.json())
+# If data doesn't exist, append to a csv we have.
+
+# Make csv on a shared location. In meantime set it to a fixed location.
+
+# Run model over data
