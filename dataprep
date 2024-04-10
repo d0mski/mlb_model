@@ -1,5 +1,5 @@
 import requests
-import pandas
+import pandas as pd
 from datetime import datetime
 
 url = "https://tank01-mlb-live-in-game-real-time-statistics.p.rapidapi.com/getMLBBettingOdds"
@@ -16,10 +16,12 @@ headers = {
 
 response = requests.get(url, headers=headers, params=querystring)
 # Insert a check here to see if this days data already exists to not waste a pull
-# Clean up data into useable format
 
+json_data = response.json()
 
-print(response.json())
+df = pd.DataFrame.from_dict(json_data)
+
+print(df)
 # If data doesn't exist, append to a csv we have.
 
 # Make csv on a shared location. In meantime set it to a fixed location.
