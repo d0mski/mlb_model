@@ -16,6 +16,7 @@ headers = {
 
 response = requests.get(url, headers=headers, params=querystring)
 # Insert a check here to see if this days data already exists to not waste a pull
+# Add a check y/N if we want data pulled - so we have option to get refreshed data
 
 json_data = response.json()
 
