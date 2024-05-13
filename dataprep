@@ -1,6 +1,7 @@
 import requests
 import pandas as pd
 from datetime import datetime
+import numpy as np 
 
 url = "https://tank01-mlb-live-in-game-real-time-statistics.p.rapidapi.com/getMLBBettingOdds"
 
@@ -15,12 +16,27 @@ headers = {
 }
 
 response = requests.get(url, headers=headers, params=querystring)
-# Insert a check here to see if this days data already exists to not waste a pull
-# Add a check y/N if we want data pulled - so we have option to get refreshed data
+# # Insert a check here to see if this days data already exists to not waste a pull
+# # Add a check y/N if we want data pulled - so we have option to get refreshed data
 
 json_data = response.json()
 
-df = pd.DataFrame.from_dict(json_data)
+df_norm = pd.json_normalize(json_data, max_level=1)
+dfs = {}
+gameIDs = []
+
+for col in df_norm.columns:
+    # Convert each dictionary into a DataFrame
+    dfs[col] = pd.DataFrame(df_norm[col].tolist())
+    # gameIDs.append(dfs['gameID'])
+
+df1 = dfs['body.'+str(yyyymmdd)+'_CHC@ATL']
+
+# Only pull from fanduel for now
+dff = pd.DataFrame(df1['fanduel'], index=[0])
+
+# Expand the dictionaries into separate columns
+df = dff['fanduel'].apply(pd.Series)
 
 print(df)
 # If data doesn't exist, append to a csv we have.
