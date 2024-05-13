@@ -4,6 +4,7 @@ from datetime import datetime
 
 url = "https://tank01-mlb-live-in-game-real-time-statistics.p.rapidapi.com/getMLBBettingOdds"
 
+house_list = ['betmgm','fanduel','hardrock','espnbet','betrivers','draftkings']
 today = datetime.today()
 yyyymmdd = today.strftime("%Y%m%d")
 
@@ -34,12 +35,15 @@ for column in dfs:
     if "@" in column:
         gameIDs.append(column)
  # Only pull from fanduel for now
-        odds_df = dfs[column]['fanduel'].apply(pd.Series)
-        full_slate = pd.concat([full_slate,odds_df])
+        for item in house_list:
+            odds_df = dfs[column][item].apply(pd.Series)
+            odds_df['house'] = item
+            odds_df['game'] = column.split("_",1)[1]
+            full_slate = pd.concat([full_slate,odds_df])
 
 full_slate['date'] = yyyymmdd
 
-full_slate.to_csv('today_game_s   late.csv')
+full_slate.to_csv('today_game_slate.csv')
 
 # If data doesn't exist, append to a csv we have.
 
