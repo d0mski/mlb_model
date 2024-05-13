@@ -1,6 +1,7 @@
 import requests
 import pandas as pd
 from datetime import datetime
+from apikey import key
 
 url = "https://tank01-mlb-live-in-game-real-time-statistics.p.rapidapi.com/getMLBBettingOdds"
 
@@ -11,7 +12,7 @@ yyyymmdd = today.strftime("%Y%m%d")
 querystring = {"gameDate":str(yyyymmdd),"playerProps":"false"}
 
 headers = {
-	"X-RapidAPI-Key": "d85b8a5944msh925da968eaa6b6fp1d91b9jsn8961b29ff9a9",
+	"X-RapidAPI-Key": key,
 	"X-RapidAPI-Host": "tank01-mlb-live-in-game-real-time-statistics.p.rapidapi.com"
 }
 
@@ -34,7 +35,7 @@ for col in df_norm.columns:
 for column in dfs:
     if "@" in column:
         gameIDs.append(column)
- # Only pull from fanduel for now
+# loop through each betting house to get different odds
         for item in house_list:
             odds_df = dfs[column][item].apply(pd.Series)
             odds_df['house'] = item
@@ -45,8 +46,8 @@ full_slate['date'] = yyyymmdd
 
 full_slate.to_csv('today_game_slate.csv')
 
-# If data doesn't exist, append to a csv we have.
+# Append to a "master" csv 
 
-# Make csv on a shared location. In meantime set it to a fixed location.
+# Make csv on a shared location. In meantime set it to a fixed local location.
 
 # Run model over data
