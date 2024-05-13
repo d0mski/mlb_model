@@ -1,7 +1,6 @@
 import requests
 import pandas as pd
 from datetime import datetime
-import numpy as np 
 
 url = "https://tank01-mlb-live-in-game-real-time-statistics.p.rapidapi.com/getMLBBettingOdds"
 
@@ -16,29 +15,32 @@ headers = {
 }
 
 response = requests.get(url, headers=headers, params=querystring)
-# # Insert a check here to see if this days data already exists to not waste a pull
-# # Add a check y/N if we want data pulled - so we have option to get refreshed data
+# Insert a check here to see if this days data already exists to not waste a pull
+# Add a check y/N if we want data pulled - so we have option to get refreshed data
 
 json_data = response.json()
 
 df_norm = pd.json_normalize(json_data, max_level=1)
 dfs = {}
 gameIDs = []
+full_slate = pd.DataFrame()
 
 for col in df_norm.columns:
     # Convert each dictionary into a DataFrame
     dfs[col] = pd.DataFrame(df_norm[col].tolist())
-    # gameIDs.append(dfs['gameID'])
 
-df1 = dfs['body.'+str(yyyymmdd)+'_CHC@ATL']
+# grab list of games for today and append in list
+for column in dfs:
+    if "@" in column:
+        gameIDs.append(column)
+ # Only pull from fanduel for now
+        odds_df = dfs[column]['fanduel'].apply(pd.Series)
+        full_slate = pd.concat([full_slate,odds_df])
 
-# Only pull from fanduel for now
-dff = pd.DataFrame(df1['fanduel'], index=[0])
+full_slate['date'] = yyyymmdd
 
-# Expand the dictionaries into separate columns
-df = dff['fanduel'].apply(pd.Series)
+full_slate.to_csv('today_game_s   late.csv')
 
-print(df)
 # If data doesn't exist, append to a csv we have.
 
 # Make csv on a shared location. In meantime set it to a fixed location.
