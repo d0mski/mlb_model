@@ -11,6 +11,7 @@ yyyymmdd = today.strftime("%Y%m%d")
 
 querystring = {"gameDate":str(yyyymmdd),"playerProps":"false"}
 
+# create user input for key and use it to generate apikey.py if it does not already exist
 headers = {
 	"X-RapidAPI-Key": key,
 	"X-RapidAPI-Host": "tank01-mlb-live-in-game-real-time-statistics.p.rapidapi.com"

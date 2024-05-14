@@ -1,31 +1,31 @@
-full_team_name, team_abbr, team_id
-Arizona Diamondbacks, ARI, 109
-Atlanta Braves, ATL, 144
-Baltimore Orioles, BAL, 110
-Boston Red Sox, BOS, 111
-Chicago Cubs, CHC, 112
-Chicago White Sox, CHW, 145
-Cincinnati Reds, CIN, 113
-Cleveland Guardians, CLE, 114
-Colorado Rockies, COL, 115
-Detroit Tigers, DET, 116
-Miami Marlins, MIA, 146
-Houston Astros, HOU, 117
-Kansas City Royals, KAN, 118
-Los Angeles Angels, LAA, 108
-Los Angeles Dodgers, LAD, 119
-Milwaukee Brewers, MIL, 158
-Minnesota Twins, MIN, 142
-New York Mets, NYM, 121
-New York Yankees, NYY, 147
-Oakland Athletics, OAK, 133
-Philadelphia Phillies, PHI, 143
-Pittsburgh Pirates, PIT, 134
-San Diego Padres, SD, 135
-San Francisco Giants, SF, 137
-Seattle Mariners, SEA, 136
-St. Louis Cardinals, STL, 138
-Tampa Bay Rays, TB, 139
-Texas Rangers, TEX, 140
-Toronto Blue Jays, TOR, 141
-Washington Nationals, WAS, 120 
+full_team_name,team_abbr,team_id
+Arizona Diamondbacks,ARI,109
+Atlanta Braves,ATL,144
+Baltimore Orioles,BAL,110
+Boston Red Sox,BOS,111
+Chicago Cubs,CHC,112
+Chicago White Sox,CHW,145
+Cincinnati Reds,CIN,113
+Cleveland Guardians,CLE,114
+Colorado Rockies,COL,115
+Detroit Tigers,DET,116
+Miami Marlins,MIA,146
+Houston Astros,HOU,117
+Kansas City Royals,KAN,118
+Los Angeles Angels,LAA,108
+Los Angeles Dodgers,LAD,119
+Milwaukee Brewers,MIL,158
+Minnesota Twins,MIN,142
+New York Mets,NYM,121
+New York Yankees,NYY,147
+Oakland Athletics,OAK,133
+Philadelphia Phillies,PHI,143
+Pittsburgh Pirates,PIT,134
+San Diego Padres,SD,135
+San Francisco Giants,SF,137
+Seattle Mariners,SEA,136
+St.Louis Cardinals,STL,138
+Tampa Bay Rays,TB,139
+Texas Rangers,TEX,140
+Toronto Blue Jays,TOR,141
+Washington Nationals,WAS,120
