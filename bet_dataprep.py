@@ -5,7 +5,7 @@ from apikey import key
 
 url = "https://tank01-mlb-live-in-game-real-time-statistics.p.rapidapi.com/getMLBBettingOdds"
 
-house_list = ['betmgm','fanduel','hardrock','espnbet','betrivers','draftkings']
+house_list = ['betmgm','fanduel','hardrock']
 today = datetime.today()
 yyyymmdd = today.strftime("%Y%m%d")
 
@@ -36,6 +36,7 @@ for column in dfs:
     if "@" in column:
         gameIDs.append(column)
 # loop through each betting house to get different odds
+# TODO: make this house list more dynamic. some houses aren't available for every game so we are excluding some, like draft kings, espnbet, bet rivers
         for item in house_list:
             odds_df = dfs[column][item].apply(pd.Series)
             odds_df['house'] = item
@@ -43,6 +44,8 @@ for column in dfs:
             full_slate = pd.concat([full_slate,odds_df])
 
 full_slate['date'] = yyyymmdd
+full_slate['home_team'] = full_slate['game'].str.split("@").str[1]
+full_slate['away_team'] = full_slate['game'].str.split("@").str[0]
 
 full_slate.to_csv('today_game_slate.csv')
 
