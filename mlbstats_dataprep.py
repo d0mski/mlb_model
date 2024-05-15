@@ -27,15 +27,18 @@ df = pd.DataFrame()
 player_nm = []
 player_status = []
 parent_team_id = []
+roster = []
 
-# TODO: change this to grab from active daily teams dynamically
-roster = mlb.get_team_roster(110)
+for id in team_info['team_id']:
+    curr_roster = mlb.get_team_roster(id)
+    roster.append(curr_roster)
 
 # grab players from each roster and if they are active
-for player in roster:
-    player_nm.append(player.fullname)
-    player_status.append(player.status)
-    parent_team_id.append(player.parentteamid)
+for team in roster:
+    for player in team:
+        player_nm.append(player.fullname)
+        player_status.append(player.status)
+        parent_team_id.append(player.parentteamid)
 
 descriptions = [item['description'] for item in player_status]
 status=pd.DataFrame(descriptions,columns=['status'])
