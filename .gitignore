@@ -1,1 +1,8 @@
+# Hide API key from repo
 apikey.py
+
+# Hide local compilations
+/__pycache__/*
+
+# Outputs
+today_game_slate.csv
