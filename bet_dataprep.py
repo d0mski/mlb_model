@@ -5,7 +5,7 @@ from apikey import key
 
 url = "https://tank01-mlb-live-in-game-real-time-statistics.p.rapidapi.com/getMLBBettingOdds"
 
-house_list = ['betmgm','fanduel','hardrock']
+house_list = ['fanduel']
 today = datetime.today()
 yyyymmdd = today.strftime("%Y%m%d")
 
