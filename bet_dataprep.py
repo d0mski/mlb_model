@@ -11,15 +11,18 @@ yyyymmdd = today.strftime("%Y%m%d")
 
 querystring = {"gameDate":str(yyyymmdd),"playerProps":"false"}
 
-# create user input for key and use it to generate apikey.py if it does not already exist
+# TODO: check if apikey.py exists, if not then create user input for manual key enter 
+#       and use it to generate the file if it does not already exist
+#       will also have to include functionality to change it if ever needed.
+
 headers = {
 	"X-RapidAPI-Key": key,
 	"X-RapidAPI-Host": "tank01-mlb-live-in-game-real-time-statistics.p.rapidapi.com"
 }
 
 response = requests.get(url, headers=headers, params=querystring)
-# Insert a check here to see if this day's betting data already exists to not waste a pull
-# Add a check y/N if we want data pulled - so we have option to get refreshed data
+# TODO: Insert a check here to see if this day's betting data already exists to not waste a pull
+# TODO: Add a check y/N if we want data pulled - so we have option to get refreshed data
 
 json_data = response.json()
 
@@ -50,8 +53,8 @@ full_slate['away_team'] = full_slate['game'].str.split("@").str[0]
 
 full_slate.to_csv('today_game_slate.csv')
 
-# Append to a "master" csv 
+# TODO: Append to a "master" csv 
 
-# Make csv on a shared location. In meantime set it to a fixed local location.
+# TODO: Make csv on a shared location. In meantime set it to a fixed local location.
 
-# Run model over data
+# TODO: Run model over data

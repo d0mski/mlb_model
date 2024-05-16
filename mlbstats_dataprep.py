@@ -27,9 +27,11 @@ df = pd.DataFrame()
 # TODO: remove these and have the loop join directly to dataframe.
 player_nm = []
 player_status = []
-parent_team_id = []
 roster = []
 player_id_list = []
+player_position_nm = []
+player_position_code = []
+parentteam = []
 
 # this works but can take a long time if all teams are playing. change to one team only for testing purposes.
 # for id in team_info['team_id']:
@@ -41,28 +43,38 @@ roster = mlb.get_team_roster(110)
 # grab players from each roster and if they are active
 # TODO: this is pretty time-intensive. research a quicker way to complete this. may not be possible due to api call limitation.
 # TODO: also am joining based on them all being in the same order, not best practice and should revisit to use .iterrows
-# TODO: only grab for pitcher starting in today's game
 
 # this works but can take a long time if all teams are playing. change to one team only for testing purposes.
 # for team in roster:
 #     for player in team:
 for player in roster:
-    player_nm.append(player.fullname)
-    player_status.append(player.status)
-    parent_team_id.append(player.parentteamid)
-    player_id_list.append(mlb.get_people_id(player.fullname))
+    if player.primaryposition.name == 'Pitcher':
+        player_position_nm.append(player.primaryposition.name)
+        player_position_code.append(player.primaryposition.code)
+        parentteam.append(player.parentteamid)
+        player_nm.append(player.fullname)
+        player_status.append(player.status)
+        player_id_list.append(mlb.get_people_id(player.fullname))
 
 descriptions = [item['description'] for item in player_status]
 status=pd.DataFrame(descriptions,columns=['status'])
 player=pd.DataFrame({'player_nm':player_nm})
-team_id=pd.DataFrame({'team_id':parent_team_id})
+team_id=pd.DataFrame({'team_id':parentteam})
 player_id=pd.DataFrame(player_id_list,columns=['player_id'])
+position=pd.DataFrame({'position':player_position_nm})
+position_code=pd.DataFrame({'position_code':player_position_code})
 
+# merge player info into single dataframe
 play_info = pd.merge(status, player, left_index=True, right_index=True)
 play_info = pd.merge(play_info, team_id, left_index=True, right_index=True)
 play_info = pd.merge(play_info, player_id, left_index=True, right_index=True)
+play_info = pd.merge(play_info, position, left_index=True, right_index=True)
+play_info = pd.merge(play_info, position_code, left_index=True, right_index=True)
 
-# does not support L3/L5 games, only by season,
+print(play_info)
+play_info.to_csv('today_player_stats.csv')
+
+# does not support L3/L5 games, only by season
 # TODO: does support game log, may have to grab last 3 from there and ping each game individually for those stats
 
 curr_seas_yr = datetime.now().year
@@ -72,6 +84,7 @@ groups = ['hitting']
 params = {'season': curr_seas_yr}
 today_teams_stat = pd.DataFrame()
 
+# for each row iterated grab team abbreviation while here so we can match later on
 for i, row in team_info.iterrows():
     team_id = row['team_id']
     stats = mlb.get_team_stats(team_id, stats=stats_param, groups=groups, **params)
