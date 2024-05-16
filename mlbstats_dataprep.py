@@ -3,7 +3,6 @@ import pandas as pd
 from bet_dataprep import full_slate
 import re
 from datetime import datetime
-import csv
 
 mlb = mlbstatsapi.Mlb()
 
@@ -41,7 +40,8 @@ roster = mlb.get_team_roster(110)
 
 # grab players from each roster and if they are active
 # TODO: this is pretty time-intensive. research a quicker way to complete this. may not be possible due to api call limitation.
-# TODO: also am joining based on them all being in the same order, not best practice and should revisit.
+# TODO: also am joining based on them all being in the same order, not best practice and should revisit to use .iterrows
+# TODO: only grab for pitcher starting in today's game
 
 # this works but can take a long time if all teams are playing. change to one team only for testing purposes.
 # for team in roster:
@@ -63,19 +63,25 @@ play_info = pd.merge(play_info, team_id, left_index=True, right_index=True)
 play_info = pd.merge(play_info, player_id, left_index=True, right_index=True)
 
 # does not support L3/L5 games, only by season,
-# does support game log, may have to grab last 3 from there and ping each game individually for those stats
-stats = ['season', 'career']
-groups = ['hitting', 'pitching']
-params = {'season': 2024}
-data = []
-split_dict = {}
-stat_dict = mlb.get_player_stats(668939, stats=stats, groups=groups, **params)
-season_hitting_stat = stat_dict['hitting']['season']
-for split in season_hitting_stat.splits:
-    for k, v in split.stat.__dict__.items():
-         v=[v]
-         split_dict[k] = v
-    data.append(split_dict)
-     
-df = pd.DataFrame(split_dict)
-print(df)
+# TODO: does support game log, may have to grab last 3 from there and ping each game individually for those stats
+
+curr_seas_yr = datetime.now().year
+team_dict = {}
+stats_param = ['season']
+groups = ['hitting']
+params = {'season': curr_seas_yr}
+today_teams_stat = pd.DataFrame()
+
+for i, row in team_info.iterrows():
+    team_id = row['team_id']
+    stats = mlb.get_team_stats(team_id, stats=stats_param, groups=groups, **params)
+    season_hitting = stats['hitting']['season']
+    for split in season_hitting.splits:
+        for k, v in split.stat.__dict__.items():
+            v=[v]
+            team_dict[k] = v
+    team_dict['team_abbr'] = row['team_abbr']
+    curr_team_stats = pd.DataFrame(team_dict)
+    today_teams_stat = pd.concat([today_teams_stat, curr_team_stats])
+
+today_teams_stat.to_csv('today_team_stats.csv')

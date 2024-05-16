@@ -6,3 +6,4 @@ apikey.py
 
 # Outputs
 today_game_slate.csv
+today_team_stats.csv
