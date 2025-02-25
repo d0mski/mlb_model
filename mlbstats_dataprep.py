@@ -76,9 +76,7 @@ print(play_info)
 play_info.to_csv('today_player_stats.csv')
 
 game = mlb.get_game(662242)
-print(game)
 # TODO: go through each pitcher and append stats
-# TODO: go through today's box score ? to figure out who is starting
 
 # does not support L3/L5 games, only by season
 # TODO: does support game log, may have to grab last 3 from there and ping each game individually for those stats
@@ -92,7 +90,6 @@ today_teams_stat = pd.DataFrame()
 # for each row iterated grab team abbreviation while here so we can match later on
 for i, row in team_info.iterrows():
     team_id = row['team_id']
-    print(team_id)
     params = {
         "teamId": team_id,  # Required parameter
         #default to last year if before a certain point in the season with enough stats
@@ -103,8 +100,7 @@ for i, row in team_info.iterrows():
         "sportIds": 1,  # MLB sport ID
     }
     stats = statsapi.get("team_stats", params)
-    print(stats)
-    
+
     # Initialize an empty dictionary to store team stats
     team_dict = {}
 
@@ -126,15 +122,5 @@ for i, row in team_info.iterrows():
 
     # Concatenate the new team stats with the existing DataFrame (today_teams_stat)
     today_teams_stat = pd.concat([today_teams_stat, curr_team_stats], ignore_index=True)
-
-
-    # season_hitting = stats['hitting']['season']
-    # for split in season_hitting.splits:
-    #     for k, v in split.stat.__dict__.items():
-    #         v=[v]
-    #         team_dict[k] = v
-    # team_dict['team_abbr'] = row['team_abbr']
-    # curr_team_stats = pd.DataFrame(team_dict)
-    # today_teams_stat = pd.concat([today_teams_stat, curr_team_stats])
 
 today_teams_stat.to_csv('today_team_stats.csv')
