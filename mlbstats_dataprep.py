@@ -3,6 +3,7 @@ import pandas as pd
 from bet_dataprep import full_slate
 import re
 from datetime import datetime
+import statsapi
 
 mlb = mlbstatsapi.Mlb()
 
@@ -74,6 +75,11 @@ play_info = pd.merge(play_info, position_code, left_index=True, right_index=True
 print(play_info)
 play_info.to_csv('today_player_stats.csv')
 
+game = mlb.get_game(662242)
+print(game)
+# TODO: go through each pitcher and append stats
+# TODO: go through today's box score ? to figure out who is starting
+
 # does not support L3/L5 games, only by season
 # TODO: does support game log, may have to grab last 3 from there and ping each game individually for those stats
 
@@ -81,20 +87,54 @@ curr_seas_yr = datetime.now().year
 team_dict = {}
 stats_param = ['season']
 groups = ['hitting']
-params = {'season': curr_seas_yr}
 today_teams_stat = pd.DataFrame()
 
 # for each row iterated grab team abbreviation while here so we can match later on
 for i, row in team_info.iterrows():
     team_id = row['team_id']
-    stats = mlb.get_team_stats(team_id, stats=stats_param, groups=groups, **params)
-    season_hitting = stats['hitting']['season']
-    for split in season_hitting.splits:
-        for k, v in split.stat.__dict__.items():
-            v=[v]
-            team_dict[k] = v
-    team_dict['team_abbr'] = row['team_abbr']
+    print(team_id)
+    params = {
+        "teamId": team_id,  # Required parameter
+        #default to last year if before a certain point in the season with enough stats
+        "season": 2024, #curr_seas_yr,  # Specify the season, doing 2024 since 2025 just started
+        "group": "hitting",  # Valid group value
+        "stats": "season",  # Confirm valid values using statsapi.meta('statTypes')
+        "gameType": "R",  # Regular season
+        "sportIds": 1,  # MLB sport ID
+    }
+    stats = statsapi.get("team_stats", params)
+    print(stats)
+    
+    # Initialize an empty dictionary to store team stats
+    team_dict = {}
+
+    # Extract the 'hitting' stats for the season
+    for stat in stats['stats']:
+        if stat['group']['displayName'] == 'hitting':  # Only focus on hitting stats
+            for split in stat['splits']:
+                season_hitting = split['stat']  # Extract the hitting stats for the season
+
+                # Add stats to the dictionary
+                for k, v in season_hitting.items():
+                    team_dict[k] = [v]  # Store each stat as a list for DataFrame construction
+                
+                # Add the team abbreviation (from the team info in the response)
+                team_dict['team_abbr'] = [row['team_abbr']]
+
+    # Convert the team_dict into a DataFrame
     curr_team_stats = pd.DataFrame(team_dict)
-    today_teams_stat = pd.concat([today_teams_stat, curr_team_stats])
+
+    # Concatenate the new team stats with the existing DataFrame (today_teams_stat)
+    today_teams_stat = pd.concat([today_teams_stat, curr_team_stats], ignore_index=True)
+
+
+    # season_hitting = stats['hitting']['season']
+    # for split in season_hitting.splits:
+    #     for k, v in split.stat.__dict__.items():
+    #         v=[v]
+    #         team_dict[k] = v
+    # team_dict['team_abbr'] = row['team_abbr']
+    # curr_team_stats = pd.DataFrame(team_dict)
+    # today_teams_stat = pd.concat([today_teams_stat, curr_team_stats])
 
 today_teams_stat.to_csv('today_team_stats.csv')

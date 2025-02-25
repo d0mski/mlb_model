@@ -9,7 +9,7 @@ house_list = ['fanduel']
 today = datetime.today()
 yyyymmdd = today.strftime("%Y%m%d")
 
-querystring = {"gameDate":str(yyyymmdd),"playerProps":"false"}
+querystring = {"gameDate":str(20240924),"playerProps":"false"}
 
 # TODO: check if apikey.py exists, if not then create user input for manual key enter 
 #       and use it to generate the file if it does not already exist
