@@ -6,6 +6,24 @@ from datetime import datetime
 import statsapi
 from bs4 import BeautifulSoup
 import requests
+import starting_pitcher
+import unicodedata
+
+# Normalize data across character accents
+def remove_accents(text):
+    return ''.join(
+        c for c in unicodedata.normalize('NFKD', text)
+        if not unicodedata.combining(c)
+    )
+
+# Normalize data across name format
+def first_and_last_only(name):
+    parts = name.strip().title().split()
+    if len(parts) >= 2:
+        first_initial = parts[0][0]
+        last_name = parts[-1]
+        return f"{first_initial} {last_name}"
+    return name.title()
 
 mlb = mlbstatsapi.Mlb()
 
@@ -37,27 +55,28 @@ player_position_code = []
 parentteam = []
 
 # this works but can take a long time if all teams are playing. change to one team only for testing purposes.
-# for id in team_info['team_id']:
-#     curr_roster = mlb.get_team_roster(id)
-#     roster.append(curr_roster)
+for id in team_info['team_id']:
+    curr_roster = mlb.get_team_roster(id)
+    roster.append(curr_roster)
 
-roster = mlb.get_team_roster(110)
+# testing var below
+# roster = mlb.get_team_roster(110)
 
 # grab players from each roster and if they are active
 # TODO: this is pretty time-intensive. research a quicker way to complete this. may not be possible due to api call limitation.
 # TODO: also am joining based on them all being in the same order, not best practice and should revisit to use .iterrows
 
 # this works but can take a long time if all teams are playing. change to one team only for testing purposes.
-# for team in roster:
-#     for player in team:
-for player in roster:
-    if player.primaryposition.name == 'Pitcher':
-        player_position_nm.append(player.primaryposition.name)
-        player_position_code.append(player.primaryposition.code)
-        parentteam.append(player.parentteamid)
-        player_nm.append(player.fullname)
-        player_status.append(player.status)
-        player_id_list.append(mlb.get_people_id(player.fullname))
+for team in roster:
+    for player in team:
+# for player in roster:
+        if player.primaryposition.name == 'Pitcher':
+            player_position_nm.append(player.primaryposition.name)
+            player_position_code.append(player.primaryposition.code)
+            parentteam.append(player.parentteamid)
+            player_nm.append(player.fullname)
+            player_status.append(player.status)
+            player_id_list.append(mlb.get_people_id(player.fullname))
 
 descriptions = [item['description'] for item in player_status]
 status=pd.DataFrame(descriptions,columns=['status'])
@@ -75,26 +94,25 @@ play_info = pd.merge(play_info, position, left_index=True, right_index=True)
 play_info = pd.merge(play_info, position_code, left_index=True, right_index=True)
 
 print(play_info)
-play_info.to_csv('today_player_stats.csv')
+# play_info.to_csv('today_player_stats.csv')
 
 today_pitcher = pd.DataFrame()
 
 today = datetime.today()
-# yyyymmdd = today.strftime("%Y%m%d")
-yyyymmdd = "20240425"
+yyyymmdd = today.strftime("%Y%m%d")
+# yyyymmdd = "20240425"
 
-url = 'https://www.cbssports.com/fantasy/baseball/probable-pitchers/' + yyyymmdd
-
-website = requests.get(url)
-scrape =BeautifulSoup(website.text, "html.parser")
-
-pitcher = scrape.find_all("span", attrs={"class":"CellPlayerName--long"})
-
-for player in pitcher:
-    print(player.text) 
-
-game = mlb.get_game(662242)
+# game = mlb.get_game(662242)
 # TODO: go through each pitcher and append stats
+pitch_df = starting_pitcher.grab_pitching_list()
+
+pitch_df['player_nm'] = pitch_df['player_nm'].apply(remove_accents)
+play_info['player_nm'] = play_info['player_nm'].apply(remove_accents)
+pitch_df['player_nm'] = pitch_df['player_nm'].apply(first_and_last_only)
+play_info['player_nm'] = play_info['player_nm'].apply(first_and_last_only)
+
+today_ptc_stats = pd.merge(pitch_df, play_info, on='player_nm', how='left')
+today_ptc_stats.to_csv('today_pitcher_stats.csv')
 
 # does not support L3/L5 games, only by season
 # TODO: does support game log, may have to grab last 3 from there and ping each game individually for those stats
@@ -111,7 +129,7 @@ for i, row in team_info.iterrows():
     params = {
         "teamId": team_id,  # Required parameter
         #default to last year if before a certain point in the season with enough stats
-        "season": 2024, #curr_seas_yr,  # Specify the season, doing 2024 since 2025 just started
+        "season": curr_seas_yr, #curr_seas_yr,  # Specify the season
         "group": "hitting",  # Valid group value
         "stats": "season",  # Confirm valid values using statsapi.meta('statTypes')
         "gameType": "R",  # Regular season
