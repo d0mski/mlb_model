@@ -4,6 +4,8 @@ from bet_dataprep import full_slate
 import re
 from datetime import datetime
 import statsapi
+from bs4 import BeautifulSoup
+import requests
 
 mlb = mlbstatsapi.Mlb()
 
@@ -74,6 +76,22 @@ play_info = pd.merge(play_info, position_code, left_index=True, right_index=True
 
 print(play_info)
 play_info.to_csv('today_player_stats.csv')
+
+today_pitcher = pd.DataFrame()
+
+today = datetime.today()
+# yyyymmdd = today.strftime("%Y%m%d")
+yyyymmdd = "20240425"
+
+url = 'https://www.cbssports.com/fantasy/baseball/probable-pitchers/' + yyyymmdd
+
+website = requests.get(url)
+scrape =BeautifulSoup(website.text, "html.parser")
+
+pitcher = scrape.find_all("span", attrs={"class":"CellPlayerName--long"})
+
+for player in pitcher:
+    print(player.text) 
 
 game = mlb.get_game(662242)
 # TODO: go through each pitcher and append stats
